@@ -18,11 +18,10 @@ class GoogleDriveAdapter
 
     public function upload(GoogleDriveFile $file, string $folderId, $isPublic=false)
     {
-        $googleDriveFile = $this->makeDriveFile($file, $folderId);
+        $googleDriveFile = $this->makeDriveFile($file, $folderId, $isPublic);
         $response = $this->save2GDrive(
             $googleDriveFile,
-            $file,
-            $isPublic
+            $file
         );
 
         return $this->createGDriveFile($response, null, null, $file->getContent());
@@ -62,22 +61,13 @@ class GoogleDriveAdapter
         return empty($response->getBody()->getContents());
     }
 
-    private function makeDriveFile(GoogleDriveFile $uploadedFile, string $folderId): DriveFile
-    {
-        return new DriveFile([
-            'name' => $uploadedFile->getName(),
-            'parents' => [$folderId],
-        ]);
-    }
-
-    private function save2GDrive(DriveFile $googleDriveFile, GoogleDriveFile $file, $isPublic=false): DriveFile
+    private function makeDriveFile(GoogleDriveFile $uploadedFile, string $folderId, $isPublic=false): DriveFile
     {
         $filemetaData = [
-            'data' => $file->getContent(),
-            'uploadType' => 'multipart',
-            'fields' => 'id,mimeType,name,webViewLink,permissions,size'
+            'name' => $uploadedFile->getName(),
+            'parents' => [$folderId],
         ];
-
+        
         if($isPublic){
             $filemetaData['permissions'] = [
                 [
@@ -86,9 +76,19 @@ class GoogleDriveAdapter
                 ],
             ];
         }
-
-        return $this->googleServiceDrive->files->create($googleDriveFile, $filemetaData);
+        
+        return new DriveFile($filemetaData);
     }
+
+    private function save2GDrive(DriveFile $googleDriveFile, GoogleDriveFile $file): DriveFile
+    {
+        return $this->googleServiceDrive->files->create($googleDriveFile,[
+            'data' => $file->getContent(),
+            'uploadType' => 'multipart',
+            'fields' => 'id,mimeType,name,webViewLink,permissions,size'
+        ]);
+    }
+
 
     public function mkdir($directoryName, $parentFolderId = null): GoogleDriveFile
     {
