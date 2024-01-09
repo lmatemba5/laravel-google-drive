@@ -11,9 +11,9 @@ class DirectoryManager
     ) {
     }
 
-    public function mkdir($directoryName, string $folderId = null)
+    public function mkdir($directoryName, string $folderId = null, $isPublic=false)
     {
-        return $this->googleDrive->mkdir($directoryName, $folderId);
+        return $this->googleDrive->mkdir($directoryName, $folderId, $isPublic);
     }
 
     public function find($fileName, $parentId=null, $pageToken=null)

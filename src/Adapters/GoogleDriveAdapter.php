@@ -80,21 +80,24 @@ class GoogleDriveAdapter
             'fields' => 'id,mimeType,name,webViewLink,permissions,size'
         ]);
 
-        
         if($isPublic){
-            $permission = new Permission([
-                'type' => 'anyone',
-                'role' => 'reader',
-            ]);
-            
-            $this->googleServiceDrive->permissions->create($driveFile->id, $permission);
+            $this->makePublic($driveFile);
         }
 
         return $driveFile;
     }
 
+    private function makePublic($driveFile){
+        $permission = new Permission([
+            'type' => 'anyone',
+            'role' => 'reader',
+        ]);
+        
+        $this->googleServiceDrive->permissions->create($driveFile->id, $permission);
+    }
 
-    public function mkdir($directoryName, $parentFolderId = null): GoogleDriveFile
+
+    public function mkdir($directoryName, $parentFolderId = null, $isPublic=false): GoogleDriveFile
     {
         $response = $this->googleServiceDrive->files->create(
             new DriveFile([
@@ -106,6 +109,10 @@ class GoogleDriveAdapter
                 'fields' => 'id,name,webViewLink'
             ]
         );
+
+        if($isPublic){
+            $this->makePublic($response);
+        }
 
         return $this->createGDriveFile(
             $response,

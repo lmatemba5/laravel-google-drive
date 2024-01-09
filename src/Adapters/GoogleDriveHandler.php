@@ -30,9 +30,9 @@ class GoogleDriveHandler
         return $this->uploader->upload($file, $folderId, $isPublic);
     }
 
-    public function mkdir($directoryName, string $folderId = null)
+    public function mkdir($directoryName, string $folderId = null, $isPublic=false)
     {
-        return $this->dmanager->mkdir($directoryName, $folderId);
+        return $this->dmanager->mkdir($directoryName, $folderId, $isPublic);
     }
 
     public function find($fileName, $parentId=null, $pageToken=null)
