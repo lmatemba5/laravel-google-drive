@@ -27,12 +27,6 @@
             "Lmate\\LaravelGoogleDrive\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/",
-            "Lmate\\LaravelGoogleDrive\\": "tests/Unit/src"
-        }
-    },
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,

@@ -43,7 +43,7 @@ class LaravelGoogleDriveServiceProvider extends ServiceProvider
             $client->addScope(Drive::DRIVE);
 
             $client->setAuthConfig($credentials);
-
+//0886260049
             return $client;
         });
 
@@ -69,7 +69,7 @@ class LaravelGoogleDriveServiceProvider extends ServiceProvider
             }
         );
 
-        $this->app->bind('gdrive', function (Application $application) {
+        $this->app->bind('google', function (Application $application) {
             return $application->make(GoogleDriveHandler::class);
         });
     }

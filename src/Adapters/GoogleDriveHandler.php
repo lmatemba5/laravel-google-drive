@@ -35,6 +35,15 @@ class GoogleDriveHandler
         return $this->dmanager->mkdir($directoryName, $folderId);
     }
 
+    public function find($fileName, $parentId=null, $pageToken=null)
+    {
+        return $this->dmanager->find($fileName, $parentId, $pageToken);
+    }
+
+    public function listFiles($parentId=null, $pageToken=null){
+        return $this->dmanager->listFiles($parentId, $pageToken);
+    }
+
     /**
      * @param UploadedFile[] $uploadedFiles
      */

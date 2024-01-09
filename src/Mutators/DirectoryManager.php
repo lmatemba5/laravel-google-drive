@@ -15,4 +15,13 @@ class DirectoryManager
     {
         return $this->googleDrive->mkdir($directoryName, $folderId);
     }
+
+    public function find($fileName, $parentId=null, $pageToken=null)
+    {
+        return $this->googleDrive->find($fileName, $parentId, $pageToken);
+    }
+
+    public function listFiles($parentId=null, $pageToken=null){
+        return $this->googleDrive->listFiles($parentId, $pageToken);
+    }
 }
