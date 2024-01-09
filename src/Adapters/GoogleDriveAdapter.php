@@ -16,12 +16,13 @@ class GoogleDriveAdapter
         $this->parentId = $this->parentId ?: config('credentials.folder_id');
     }
 
-    public function upload(GoogleDriveFile $file, string $folderId)
+    public function upload(GoogleDriveFile $file, string $folderId, $isPublic=false)
     {
         $googleDriveFile = $this->makeDriveFile($file, $folderId);
         $response = $this->save2GDrive(
             $googleDriveFile,
-            $file
+            $file,
+            $isPublic
         );
 
         return $this->createGDriveFile($response, null, null, $file->getContent());
@@ -69,17 +70,24 @@ class GoogleDriveAdapter
         ]);
     }
 
-    private function save2GDrive(DriveFile $googleDriveFile, GoogleDriveFile $file): DriveFile
+    private function save2GDrive(DriveFile $googleDriveFile, GoogleDriveFile $file, $isPublic=false): DriveFile
     {
+        $filemetaData = [
+            'data' => $file->getContent(),
+            'uploadType' => 'multipart',
+            'fields' => 'id,mimeType,name,webViewLink,permissions,size'
+        ];
 
-        return $this->googleServiceDrive->files->create(
-            $googleDriveFile,
-            [
-                'data' => $file->getContent(),
-                'uploadType' => 'multipart',
-                'fields' => 'id,mimeType,name,webViewLink,permissions,size',
-            ]
-        );
+        if($isPublic){
+            $filemetaData['permissions'] = [
+                [
+                    'type' => 'anyone',
+                    'role' => 'reader',
+                ],
+            ];
+        }
+
+        return $this->googleServiceDrive->files->create($googleDriveFile, $filemetaData);
     }
 
     public function mkdir($directoryName, $parentFolderId = null): GoogleDriveFile
