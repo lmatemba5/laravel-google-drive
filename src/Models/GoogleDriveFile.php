@@ -26,7 +26,7 @@ final class GoogleDriveFile
         return false;
     }
 
-    public function getEmbeddeUrl(): string
+    public function getEmbededUrl(): string
     {
         $isFile = $this->mimeType != 'application/vnd.google-apps.folder';
 
