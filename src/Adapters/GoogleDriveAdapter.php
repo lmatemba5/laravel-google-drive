@@ -2,7 +2,7 @@
 
 namespace Lmate\LaravelGoogleDrive\Adapters;
 
-use Google\Service\{Drive, Drive\DriveFile};
+use Google\Service\{Drive, Drive\DriveFile, Drive\Permission};
 use Lmate\LaravelGoogleDrive\Models\GoogleDriveFile;
 
 class GoogleDriveAdapter
@@ -18,10 +18,11 @@ class GoogleDriveAdapter
 
     public function upload(GoogleDriveFile $file, string $folderId, $isPublic=false)
     {
-        $googleDriveFile = $this->makeDriveFile($file, $folderId, $isPublic);
+        $googleDriveFile = $this->makeDriveFile($file, $folderId);
         $response = $this->save2GDrive(
             $googleDriveFile,
-            $file
+            $file,
+            $isPublic
         );
 
         return $this->createGDriveFile($response, null, null, $file->getContent());
@@ -61,32 +62,35 @@ class GoogleDriveAdapter
         return empty($response->getBody()->getContents());
     }
 
-    private function makeDriveFile(GoogleDriveFile $uploadedFile, string $folderId, $isPublic=false): DriveFile
+    private function makeDriveFile(GoogleDriveFile $uploadedFile, string $folderId): DriveFile
     {
         $filemetaData = [
             'name' => $uploadedFile->getName(),
             'parents' => [$folderId],
         ];
         
-        if($isPublic){
-            $filemetaData['permissions'] = [
-                [
-                    'type' => 'anyone',
-                    'role' => 'reader',
-                ],
-            ];
-        }
-        
         return new DriveFile($filemetaData);
     }
 
-    private function save2GDrive(DriveFile $googleDriveFile, GoogleDriveFile $file): DriveFile
+    private function save2GDrive(DriveFile $googleDriveFile, GoogleDriveFile $file, $isPublic = false): DriveFile
     {
-        return $this->googleServiceDrive->files->create($googleDriveFile,[
+        $driveFile =  $this->googleServiceDrive->files->create($googleDriveFile,[
             'data' => $file->getContent(),
             'uploadType' => 'multipart',
             'fields' => 'id,mimeType,name,webViewLink,permissions,size'
         ]);
+
+        
+        if($isPublic){
+            $permission = new Permission([
+                'type' => 'anyone',
+                'role' => 'reader',
+            ]);
+            
+            $this->googleServiceDrive->permissions->create($driveFile->id, $permission);
+        }
+
+        return $driveFile;
     }
 
 
