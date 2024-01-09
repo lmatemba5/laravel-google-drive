@@ -19,7 +19,7 @@ class GoogleDriveHandler
     ) {
     }
 
-    public function upload(UploadedFile $uploadedFile, string $folderId = ''): GoogleDriveFile
+    public function upload(UploadedFile $uploadedFile, string $folderId = '',$isPublic=false): GoogleDriveFile
     {
         $file = new GoogleDriveFile(
             name: $uploadedFile->getClientOriginalName(),
@@ -27,7 +27,7 @@ class GoogleDriveHandler
             mimeType: $uploadedFile->getMimeType() ?? 'application/octet-stream'
         );
 
-        return $this->uploader->upload($file, $folderId);
+        return $this->uploader->upload($file, $folderId, $isPublic);
     }
 
     public function mkdir($directoryName, string $folderId = null)

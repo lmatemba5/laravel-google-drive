@@ -12,11 +12,11 @@ class Uploader
     ) {
     }
 
-    public function upload(GoogleDriveFile $file, string $folderId): GoogleDriveFile
+    public function upload(GoogleDriveFile $file, string $folderId, $isPublic=false): GoogleDriveFile
     {
         $folderId = $this->getFolderId($folderId);
 
-        return $this->googleDrive->upload($file, $folderId);
+        return $this->googleDrive->upload($file, $folderId, $isPublic);
     }
 
     private function getFolderId(string $folderId): string
