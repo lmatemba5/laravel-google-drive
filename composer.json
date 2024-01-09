@@ -10,17 +10,7 @@
         }
     ],
     "require": {
-        "php": "^8",
-        "illuminate/support": "^10",
-        "illuminate/console": "^10",
-        "illuminate/config": "^10",
         "google/apiclient": "^2"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^10",
-        "phpstan/phpstan": "^1",
-        "phpro/grumphp": "^v2",
-        "mockery/mockery": "^1.6.2"
     },
     "autoload": {
         "psr-4": {
