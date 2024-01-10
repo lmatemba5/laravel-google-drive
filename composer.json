@@ -1,0 +1,27 @@
+{
+    "name": "lmate/laravel-google-drive",
+    "description": "Filesystem adapter for Google Drive",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lifa Matemba",
+            "email": "lmatemba5@gmail.com"
+        }
+    ],
+    "require": {
+        "google/apiclient": "^2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lmate\\LaravelGoogleDrive\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpro/grumphp": true
+        }
+    },
+    "minimum-stability": "dev"
+}
