@@ -35,9 +35,9 @@ class GoogleDriveHandler
         return $this->dmanager->mkdir($directoryName, $folderId, $isPublic);
     }
 
-    public function find($fileName, $parentId=null, $pageToken=null)
+    public function find($fileName, $parentId=null, $perPage=null, $pageToken=null)
     {
-        return $this->dmanager->find($fileName, $parentId, $pageToken);
+        return $this->dmanager->find($fileName, $parentId, $perPage, $pageToken);
     }
 
     public function makeFilePublic(string $fileId)
@@ -50,8 +50,8 @@ class GoogleDriveHandler
         return $this->getter->makeFilePrivate($fileId);
     }
     
-    public function listFiles($parentId=null, $pageToken=null){
-        return $this->dmanager->listFiles($parentId, $pageToken);
+    public function listFiles($parentId=null, $perPage= null, $pageToken=null){
+        return $this->dmanager->listFiles($parentId, $perPage, $pageToken);
     }
 
     public function rename($fileId, $newName)

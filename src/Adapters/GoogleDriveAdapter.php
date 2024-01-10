@@ -137,9 +137,9 @@ class GoogleDriveAdapter
         );
     }
 
-    public function find($fileName, $parentId=null, $pageToken=null)
+    public function find($fileName, $parentId=null, $perPage=null, $pageToken=null)
     {        $parentId = $parentId ?: $this->parentId;
-        return $this->finalize("name = '$fileName'", $parentId, $pageToken);
+        return $this->finalize("name = '$fileName'", $parentId, $perPage, $pageToken);
     }
     
     public function rename($fileId, $newName)
@@ -155,23 +155,19 @@ class GoogleDriveAdapter
         ]; 
     }
 
-    public function listFiles($parentId=null, $pageToken=null)
+    public function listFiles($parentId=null, $perPage=null, $pageToken=null)
     {
-        // Set up parameters for file search
-        $optParams = array(
-            'q' => "'".($parentId ?: $this->parentId)."' in parents",
-            'fields' => 'nextPageToken,files(id,name,webViewLink)',
-            'pageToken'=> $pageToken
-        );
-        
-        return $this->finalize($optParams);
+        $parentId = $parentId ?: $this->parentId;
+        return $this->finalize("'".$parentId."' in parents", $parentId, $perPage, $pageToken);
     }
 
-    private function finalize($q, $parentId, $pageToken=null)
+    private function finalize($q, $parentId, $perPage=null, $pageToken=null)
     {
+        $perPage = $perPage == null ? 10 : $perPage;
         $optParams = array(
             'spaces' => 'drive',
             'q' => $q,
+            'pageSize' => $perPage,
             'pageToken'=> $pageToken,
             'fields' => 'nextPageToken,files(id,name,webViewLink,parents)',
         );

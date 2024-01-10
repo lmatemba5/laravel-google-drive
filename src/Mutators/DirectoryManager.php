@@ -16,12 +16,12 @@ class DirectoryManager
         return $this->googleDrive->mkdir($directoryName, $folderId, $isPublic);
     }
 
-    public function find($fileName, $parentId=null, $pageToken=null)
+    public function find($fileName, $parentId=null, $perPage=null, $pageToken=null)
     {
-        return $this->googleDrive->find($fileName, $parentId, $pageToken);
+        return $this->googleDrive->find($fileName, $parentId, $perPage, $pageToken);
     }
     
-    public function listFiles($parentId=null, $pageToken=null){
-        return $this->googleDrive->listFiles($parentId, $pageToken);
+    public function listFiles($parentId=null, $perPage=null, $pageToken=null){
+        return $this->googleDrive->listFiles($parentId, $perPage, $pageToken);
     }
 }
