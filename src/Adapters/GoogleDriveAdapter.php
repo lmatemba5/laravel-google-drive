@@ -126,7 +126,7 @@ class GoogleDriveAdapter
                 'parents' => [$parentFolderId ?: $this->parentId]
             ]),
             [
-                'fields' => 'id,name,webViewLink,parents,mimeType'
+                'fields' => 'id,name,webViewLink,parents,mimeType,permissions'
             ]
         );
 
@@ -175,7 +175,7 @@ class GoogleDriveAdapter
             'q' => $q,
             'pageSize' => $perPage,
             'pageToken' => $pageToken,
-            'fields' => 'nextPageToken,files(id,name,webViewLink,parents,mimeType)',
+            'fields' => 'nextPageToken,files(id,name,webViewLink,parents,mimeType,permissions)',
         );
         // Execute the request to search for the file
         $files = $this->googleServiceDrive->files->listFiles($optParams);
