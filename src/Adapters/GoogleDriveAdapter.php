@@ -8,15 +8,15 @@ use Lmate\LaravelGoogleDrive\Models\GoogleDriveFile;
 class GoogleDriveAdapter
 {
     private $parentId;
-    
+
     public function __construct(
         private readonly Drive $googleServiceDrive
-        
+
     ) {
         $this->parentId = $this->parentId ?: config('credentials.folder_id');
     }
 
-    public function upload(GoogleDriveFile $file, string $folderId, $isPublic=false)
+    public function upload(GoogleDriveFile $file, string $folderId, $isPublic = false)
     {
         $googleDriveFile = $this->makeDriveFile($file, $folderId);
         $response = $this->save2GDrive(
@@ -68,51 +68,56 @@ class GoogleDriveAdapter
             'name' => $uploadedFile->getName(),
             'parents' => [$folderId],
         ];
-        
+
         return new DriveFile($filemetaData);
     }
 
     private function save2GDrive(DriveFile $googleDriveFile, GoogleDriveFile $file, $isPublic = false): DriveFile
     {
-        $driveFile =  $this->googleServiceDrive->files->create($googleDriveFile,[
+        $driveFile =  $this->googleServiceDrive->files->create($googleDriveFile, [
             'data' => $file->getContent(),
             'uploadType' => 'multipart',
             'fields' => 'id,mimeType,name,webViewLink,permissions,size'
         ]);
 
-        if($isPublic){
+        if ($isPublic) {
             $this->makeFilePublic($driveFile->id);
         }
 
         return $driveFile;
     }
 
-    public function makeFilePublic($fileId){
+    public function makeFilePublic($fileId)
+    {
         $permission = new Permission([
             'type' => 'anyone',
             'role' => 'reader',
         ]);
-        
-        try{
+
+        try {
             $this->googleServiceDrive->permissions->create($fileId, $permission);
             return true;
-        }catch(\Exception $e){}
-        
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
         return false;
     }
 
     public function makeFilePrivate($fileId)
     {
-        try{
+        try {
             $reponse = $this->googleServiceDrive->permissions->delete($fileId, 'anyoneWithLink');
             return $reponse->getStatusCode() == 204;
-        }catch(\Exception $e){}
-        
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
         return false;
     }
 
 
-    public function mkdir($directoryName, $parentFolderId = null, $isPublic=false): GoogleDriveFile
+    public function mkdir($directoryName, $parentFolderId = null, $isPublic = false): GoogleDriveFile
     {
         $response = $this->googleServiceDrive->files->create(
             new DriveFile([
@@ -121,11 +126,11 @@ class GoogleDriveAdapter
                 'parents' => [$parentFolderId ?: $this->parentId]
             ]),
             [
-                'fields' => 'id,name,webViewLink,parents'
+                'fields' => 'id,name,webViewLink,parents,mimeType'
             ]
         );
 
-        if($isPublic){
+        if ($isPublic) {
             $this->makeFilePublic($response->id);
         }
 
@@ -137,11 +142,12 @@ class GoogleDriveAdapter
         );
     }
 
-    public function find($fileName, $parentId=null, $perPage=null, $pageToken=null)
-    {        $parentId = $parentId ?: $this->parentId;
+    public function find($fileName, $parentId = null, $perPage = null, $pageToken = null)
+    {
+        $parentId = $parentId ?: $this->parentId;
         return $this->finalize("name = '$fileName'", $parentId, $perPage, $pageToken);
     }
-    
+
     public function rename($fileId, $newName)
     {
         $newFileAttr = new DriveFile();
@@ -152,50 +158,49 @@ class GoogleDriveAdapter
         return (object)[
             'name' => $updatedFile->name,
             'id' => $updatedFile->id
-        ]; 
+        ];
     }
 
-    public function listFiles($parentId=null, $perPage=null, $pageToken=null)
+    public function listFiles($parentId = null, $perPage = null, $pageToken = null)
     {
         $parentId = $parentId ?: $this->parentId;
-        return $this->finalize("'".$parentId."' in parents", $parentId, $perPage, $pageToken);
+        return $this->finalize("'" . $parentId . "' in parents", $parentId, $perPage, $pageToken);
     }
 
-    private function finalize($q, $parentId, $perPage=null, $pageToken=null)
+    private function finalize($q, $parentId, $perPage = null, $pageToken = null)
     {
         $perPage = $perPage == null ? 10 : $perPage;
         $optParams = array(
             'spaces' => 'drive',
             'q' => $q,
             'pageSize' => $perPage,
-            'pageToken'=> $pageToken,
-            'fields' => 'nextPageToken,files(id,name,webViewLink,parents)',
+            'pageToken' => $pageToken,
+            'fields' => 'nextPageToken,files(id,name,webViewLink,parents,mimeType)',
         );
         // Execute the request to search for the file
         $files = $this->googleServiceDrive->files->listFiles($optParams);
 
         $result = collect();
-       
+
         foreach ($files->getFiles() as $file) {
             $isMyChild = false;
-            
-            foreach($file->parents as $parent){
-               if($parent == $parentId){
+
+            foreach ($file->parents as $parent) {
+                if ($parent == $parentId) {
                     $isMyChild = true;
                     break;
-               }
+                }
             }
-            
-            if($isMyChild){
+
+            if ($isMyChild) {
                 $result->push((object)[
                     'name' => $file->name,
                     "id" => $file->id,
                     'link' => $file->getWebViewLink()
                 ]);
             }
-            
-        } 
-        
+        }
+
         return [
             'data' => $result,
             'nextPageToken' => $files->getNextPageToken()
