@@ -201,7 +201,7 @@ class GoogleDriveAdapter
             }
         }
 
-        return [
+        return (object)[
             'data' => $result,
             'nextPageToken' => $files->getNextPageToken()
         ];
